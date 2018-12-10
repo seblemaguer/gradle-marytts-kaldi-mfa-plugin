@@ -8,12 +8,6 @@ configurations {
 
 repositories {
     ivy {
-        url "http://dl.bintray.com/marytts/marytts"
-        layout 'pattern', {
-            artifact '[organisation]/[module]/[module].[ext]'
-        }
-    }
-    ivy {
         url 'http://festvox.org/examples'
         layout 'pattern', {
             artifact '[module]_[classifier]/packed/[module].[ext]'
@@ -47,20 +41,14 @@ task convertTextPrompts(type: ConvertTextPrompts) {
     destDir = file("$buildDir/text")
 }
 
-convertTextToMaryXml {
+generateMFALabAndDictionary {
     srcDir = convertTextPrompts.destDir
-    locale = Locale.UK
+    destDir = file("$buildDir/mfaLab")
+    dictFile = file("$buildDir/dict.txt")
 }
 
-task testConvertTextToMaryXml {
-    dependsOn convertTextToMaryXml
-    doLast {
-        assert fileTree("$buildDir/maryxml").include('*.xml').files
-    }
-}
-
-task testProcessMaryXml {
-    dependsOn processMaryXml
+task testGenerateMFALabAndDictionary {
+    dependsOn generateMFALabAndDictionary
     doLast {
         assert fileTree("$buildDir/mfaLab").include('*.lab').files
         assert file("$buildDir/dict.txt").exists()

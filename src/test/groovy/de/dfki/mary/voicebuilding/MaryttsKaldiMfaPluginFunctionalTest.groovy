@@ -28,8 +28,7 @@ class MaryttsKaldiMfaPluginFunctionalTest {
                 ['help', false],
                 ['testPlugin', false],
                 ['unpackMFA', true],
-                ['convertTextToMaryXml', true],
-                ['processMaryXml', true],
+                ['generateMFALabAndDictionary', true],
                 ['prepareForcedAlignment', true],
                 ['runForcedAlignment', true],
                 ['convertTextGridToXLab', true]
@@ -38,7 +37,7 @@ class MaryttsKaldiMfaPluginFunctionalTest {
 
     @Test(dataProvider = 'taskNames')
     void testTasks(String taskName, boolean runTestTask) {
-        def result = gradle.withArguments(taskName).build()
+        def result = gradle.withArguments(taskName, "-is").build()
         assert result.task(":$taskName").outcome in [SUCCESS, UP_TO_DATE]
         if (runTestTask) {
             def testTaskName = 'test' + taskName.capitalize()

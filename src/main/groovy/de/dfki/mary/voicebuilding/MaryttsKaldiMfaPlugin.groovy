@@ -25,26 +25,21 @@ class MaryttsKaldiMfaPlugin implements Plugin<Project> {
                     artifact '[revision]-[classifier].[ext]'
                 }
             }
+            maven {
+                url 'https://oss.jfrog.org/artifactory/oss-release-local'
+            }
         }
 
         project.dependencies {
-            marytts 'de.dfki.mary:marytts-voicebuilding:0.1'
-            marytts 'de.dfki.mary:marytts-lang-en:5.2'
+            marytts 'de.dfki.mary:marytts-lang-en:6.0.1-ALPHA2'
             mfa getMFADependencyFor(project)
         }
 
-        project.task('convertTextToMaryXml', type: ConvertTextToMaryXml) {
-            group = 'MFA'
-            description = 'Converts text files to MaryXML for pronunciation prediction (G2P)'
-            srcDir = project.layout.buildDirectory.dir('text')
-            locale = Locale.US
-            destDir = project.layout.buildDirectory.dir('maryxml')
-        }
-
-        project.task('processMaryXml', type: ProcessMaryXml) {
+        project.task('generateMFALabAndDictionary', type: GenerateMFALabAndDict) {
             group = 'MFA'
             description = 'Extracts text input files from MaryXML and generates custom dictionary for MFA'
-            srcDir = project.convertTextToMaryXml.destDir
+            // locale = Locale.US // FIXME needs to see about this
+            srcDir = project.layout.buildDirectory.dir('text')
             destDir = project.layout.buildDirectory.dir('mfaLab')
             dictFile = project.layout.buildDirectory.file('dict.txt')
         }
@@ -53,8 +48,8 @@ class MaryttsKaldiMfaPlugin implements Plugin<Project> {
             group = 'MFA'
             description = 'Collects audio and text input files and custom dictionary for MFA'
             wavDir = project.layout.buildDirectory.dir('wav')
-            mfaLabDir = project.processMaryXml.destDir
-            dictFile = project.processMaryXml.dictFile
+            mfaLabDir = project.generateMFALabAndDictionary.destDir
+            dictFile = project.generateMFALabAndDictionary.dictFile
             destDir = project.layout.buildDirectory.dir('forcedAlignment')
         }
 
