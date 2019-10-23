@@ -31,25 +31,23 @@ class MaryttsKaldiMfaPlugin implements Plugin<Project> {
         }
 
         project.dependencies {
-            marytts 'de.dfki.mary:marytts-lang-en:6.0.1-ALPHA2'
             mfa getMFADependencyFor(project)
         }
 
-        project.task('generateMFALabAndDictionary', type: GenerateMFALabAndDict) {
+        project.task('extractMFALab', type: ExtractMFALab) {
             group = 'MFA'
             description = 'Extracts text input files from MaryXML and generates custom dictionary for MFA'
             // locale = Locale.US // FIXME needs to see about this
             srcDir = project.layout.buildDirectory.dir('text')
             destDir = project.layout.buildDirectory.dir('mfaLab')
-            dictFile = project.layout.buildDirectory.file('dict.txt')
         }
 
         project.task('prepareForcedAlignment', type: PrepareForcedAlignment) {
             group = 'MFA'
             description = 'Collects audio and text input files and custom dictionary for MFA'
             wavDir = project.layout.buildDirectory.dir('wav')
-            mfaLabDir = project.generateMFALabAndDictionary.destDir
-            dictFile = project.generateMFALabAndDictionary.dictFile
+            mfaLabDir = project.extractMFALab.destDir
+            dictFile = project.layout.buildDirectory.file('dict.txt')
             destDir = project.layout.buildDirectory.dir('forcedAlignment')
         }
 
@@ -96,15 +94,6 @@ class MaryttsKaldiMfaPlugin implements Plugin<Project> {
             clean = false
             debug = false
             ignoreExceptions = false
-        }
-
-        project.task('convertTextGridToXLab', type: ConvertTextGridToXLab) {
-            group = 'MFA'
-            description = 'Converts Praat TextGrids to XWaves lab format (with label mapping)'
-            srcDir = project.runForcedAlignment.destDir
-            tiername = 'phones'
-            labelMapping = [sil: '_', sp: '_']
-            destDir = project.layout.buildDirectory.dir('lab')
         }
     }
 
